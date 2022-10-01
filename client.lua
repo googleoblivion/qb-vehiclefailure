@@ -60,7 +60,7 @@ local function RepairVehicle(veh, isadvanced)
 			SetVehicleEngineHealth(veh, 500.0)
 			TriggerServerEvent('qb-vehiclefailure:removeItem', "repairkit")
 		end
-		-- SetVehicleEngineOn(veh, true, false)
+		-- SetVehicleEngineOn(veh, true, false, false)
 		SetVehicleTyreFixed(veh, 0)
 		SetVehicleTyreFixed(veh, 1)
 		SetVehicleTyreFixed(veh, 2)
@@ -83,6 +83,19 @@ local function isPedDrivingAVehicle()
 			if class ~= 15 and class ~= 16 and class ~=21 and class ~=13 then
 				return true
 			end
+		end
+	end
+	return false
+end
+
+local function IsBackEngine(veh)
+	local eng = GetEntityBoneIndexByName(veh, 'engine')
+	if eng ~= -1 then
+		local vpos = GetOffsetFromEntityInWorldCoords(veh, 0.0, 2.0, 0.0)
+		local bpos = GetWorldPositionOfEntityBone(veh, eng)
+		local dist = #(vpos-bpos)
+		if dist > 1.0 then
+			return true
 		end
 	end
 	return false
@@ -150,7 +163,7 @@ RegisterNetEvent('qb-vehiclefailure:client:AdminRepair', function()
 		vehicleEngineHealth = 1000.0
 		vehicleBodyHealth = 1000.0
 		vehiclePetrolHealth = 1000.0
-		SetVehicleEngineOn(vehicle, true, false )
+		SetVehicleEngineOn(vehicle, true, false, false)
 		return
 	else
 		QBCore.Functions.Notify(Lang:t("error.inside_veh_req"))
@@ -171,11 +184,12 @@ RegisterNetEvent('baseevents:enteredVehicle', function (veh, CurrentSeat, displa
 	vehicleEngineHealth = GetVehicleEngineHealth(vehicle)
 	vehicleBodyHealth = GetVehicleBodyHealth(vehicle)
 	vehiclePetrolHealth = GetVehiclePetrolTankHealth(vehicle)
+	local isBack = IsBackEngine(vehicle)
 	CreateThread(function()
 		while vehicle do
-			-- Air Controlls
-			local sleep = 1000
-			if Config.DisableVehicleAirControlls and IsEntityInAir(vehicle) then
+			-- Air Controls
+			local sleep = 0
+			if Config.DisableVehicleAirControls and IsEntityInAir(vehicle) then
 				if not IsThisModelABoat(model) and not IsThisModelAHeli(model) and not IsThisModelAPlane(model) and not IsThisModelABike(model) and not IsThisModelABicycle(model) then
 					sleep = 0
 					DisableControlAction(0, 59) -- leaning A/D
