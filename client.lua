@@ -188,7 +188,7 @@ RegisterNetEvent('baseevents:enteredVehicle', function (veh, CurrentSeat, displa
 	CreateThread(function()
 		while vehicle do
 			-- Air Controls
-			local sleep = 0
+			local sleep = 1000
 			if Config.DisableVehicleAirControls and IsEntityInAir(vehicle) then
 				if not IsThisModelABoat(model) and not IsThisModelAHeli(model) and not IsThisModelAPlane(model) and not IsThisModelABike(model) and not IsThisModelABicycle(model) then
 					sleep = 0
